@@ -8669,42 +8669,6 @@ var _jcmrva$grahamsnumberclock$Values$mmss = A2(_elm_lang$core$List$range, 0, 59
 var _jcmrva$grahamsnumberclock$Values$hour24 = A2(_elm_lang$core$List$range, 0, 23);
 var _jcmrva$grahamsnumberclock$Values$hour12 = A2(_elm_lang$core$List$range, 1, 12);
 var _jcmrva$grahamsnumberclock$Values$toGrid = F2(
-	function (width, str) {
-		var drop = _elm_lang$core$String$dropLeft(width);
-		var getPart = function (strPart) {
-			return A2(_elm_lang$core$String$left, width, strPart);
-		};
-		var toGrid_ = F3(
-			function (str_, lst, width_) {
-				toGrid_:
-				while (true) {
-					if (_elm_lang$core$Native_Utils.eq(
-						_elm_lang$core$String$length(str_),
-						0)) {
-						return lst;
-					} else {
-						var _v0 = drop(str_),
-							_v1 = {
-							ctor: '::',
-							_0: getPart(str_),
-							_1: lst
-						},
-							_v2 = width_;
-						str_ = _v0;
-						lst = _v1;
-						width_ = _v2;
-						continue toGrid_;
-					}
-				}
-			});
-		return _elm_lang$core$List$reverse(
-			A3(
-				toGrid_,
-				str,
-				{ctor: '[]'},
-				width));
-	});
-var _jcmrva$grahamsnumberclock$Values$toGrid2 = F2(
 	function (width, numbers) {
 		var drop = _elm_lang$core$List$drop(width);
 		var getPart = function (part) {
@@ -8717,16 +8681,16 @@ var _jcmrva$grahamsnumberclock$Values$toGrid2 = F2(
 					if (_elm_lang$core$List$isEmpty(part_)) {
 						return lst;
 					} else {
-						var _v3 = drop(part_),
-							_v4 = {
+						var _v0 = drop(part_),
+							_v1 = {
 							ctor: '::',
 							_0: getPart(part_),
 							_1: lst
 						},
-							_v5 = width_;
-						part_ = _v3;
-						lst = _v4;
-						width_ = _v5;
+							_v2 = width_;
+						part_ = _v0;
+						lst = _v1;
+						width_ = _v2;
 						continue toGrid_;
 					}
 				}
@@ -8750,14 +8714,14 @@ var _jcmrva$grahamsnumberclock$Values$positions = F2(
 					var _p0 = strList;
 					if (_p0.ctor === '::') {
 						var _p1 = _p0._0;
-						var _v7 = _p0._1,
-							_v8 = A3(
+						var _v4 = _p0._1,
+							_v5 = A3(
 							_elm_lang$core$Dict$insert,
 							_p1,
 							nbrPositions(_p1),
 							dict);
-						strList = _v7;
-						dict = _v8;
+						strList = _v4;
+						dict = _v5;
 						continue toDict;
 					} else {
 						return dict;
@@ -8890,7 +8854,7 @@ var _jcmrva$grahamsnumberclock$GrahamsNbrClock$toTimeParts = F2(
 var _jcmrva$grahamsnumberclock$GrahamsNbrClock$view = function (model) {
 	var w = model.options.numberGridWidth;
 	var digitList = A2(
-		_jcmrva$grahamsnumberclock$Values$toGrid2,
+		_jcmrva$grahamsnumberclock$Values$toGrid,
 		w,
 		_jcmrva$grahamsnumberclock$Utils$toTupledList(
 			A2(_elm_lang$core$Basics_ops['++'], '....', _jcmrva$grahamsnumberclock$Values$last500digits)));
