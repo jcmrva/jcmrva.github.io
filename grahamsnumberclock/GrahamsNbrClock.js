@@ -8813,19 +8813,19 @@ var _jcmrva$grahamsnumberclock$GrahamsNbrClock$nbrLine = F3(
 			},
 			nbrs);
 	});
-var _jcmrva$grahamsnumberclock$GrahamsNbrClock$init = function () {
+var _jcmrva$grahamsnumberclock$GrahamsNbrClock$init = function (flags) {
 	var mmssPos = _jcmrva$grahamsnumberclock$Values$toNbrPositions(_jcmrva$grahamsnumberclock$Values$mmss);
 	var hhPos = _jcmrva$grahamsnumberclock$Values$toNbrPositions(
 		_elm_lang$core$Native_Utils.eq(_jcmrva$grahamsnumberclock$Options$siteOptionsDefault.hourMode, _jcmrva$grahamsnumberclock$Options$TwentyFour) ? _jcmrva$grahamsnumberclock$Values$hour24 : _jcmrva$grahamsnumberclock$Values$hour12);
 	var initModel = {
-		time: _elm_lang$core$Maybe$Just(0),
+		time: _elm_lang$core$Maybe$Just(flags.datetime),
 		options: _jcmrva$grahamsnumberclock$Options$siteOptionsDefault,
 		hhPositions: hhPos,
 		mmPositions: mmssPos,
 		ssPositions: mmssPos
 	};
 	return {ctor: '_Tuple2', _0: initModel, _1: _elm_lang$core$Platform_Cmd$none};
-}();
+};
 var _jcmrva$grahamsnumberclock$GrahamsNbrClock$to12Hour = function (hh) {
 	return (_elm_lang$core$Native_Utils.cmp(hh, 12) > 0) ? (hh - 12) : (_elm_lang$core$Native_Utils.eq(hh, 0) ? 12 : hh);
 };
@@ -8949,6 +8949,9 @@ var _jcmrva$grahamsnumberclock$GrahamsNbrClock$TimeParts = F3(
 	function (a, b, c) {
 		return {hh: a, mm: b, ss: c};
 	});
+var _jcmrva$grahamsnumberclock$GrahamsNbrClock$Flags = function (a) {
+	return {datetime: a};
+};
 var _jcmrva$grahamsnumberclock$GrahamsNbrClock$NoOp = {ctor: 'NoOp'};
 var _jcmrva$grahamsnumberclock$GrahamsNbrClock$ReceiveTime = function (a) {
 	return {ctor: 'ReceiveTime', _0: a};
@@ -8977,8 +8980,15 @@ var _jcmrva$grahamsnumberclock$GrahamsNbrClock$update = F2(
 var _jcmrva$grahamsnumberclock$GrahamsNbrClock$subscriptions = function (model) {
 	return A2(_elm_lang$core$Time$every, model.options.clockResolutionMillis, _jcmrva$grahamsnumberclock$GrahamsNbrClock$ReceiveTime);
 };
-var _jcmrva$grahamsnumberclock$GrahamsNbrClock$main = _elm_lang$html$Html$program(
-	{init: _jcmrva$grahamsnumberclock$GrahamsNbrClock$init, view: _jcmrva$grahamsnumberclock$GrahamsNbrClock$view, update: _jcmrva$grahamsnumberclock$GrahamsNbrClock$update, subscriptions: _jcmrva$grahamsnumberclock$GrahamsNbrClock$subscriptions})();
+var _jcmrva$grahamsnumberclock$GrahamsNbrClock$main = _elm_lang$html$Html$programWithFlags(
+	{init: _jcmrva$grahamsnumberclock$GrahamsNbrClock$init, view: _jcmrva$grahamsnumberclock$GrahamsNbrClock$view, update: _jcmrva$grahamsnumberclock$GrahamsNbrClock$update, subscriptions: _jcmrva$grahamsnumberclock$GrahamsNbrClock$subscriptions})(
+	A2(
+		_elm_lang$core$Json_Decode$andThen,
+		function (datetime) {
+			return _elm_lang$core$Json_Decode$succeed(
+				{datetime: datetime});
+		},
+		A2(_elm_lang$core$Json_Decode$field, 'datetime', _elm_lang$core$Json_Decode$float)));
 var _jcmrva$grahamsnumberclock$GrahamsNbrClock$RequestTime = {ctor: 'RequestTime'};
 
 var Elm = {};
