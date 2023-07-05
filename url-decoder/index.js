@@ -10573,27 +10573,126 @@ var $elm$core$Basics$never = function (_v0) {
 var $elm$browser$Browser$document = _Browser_document;
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
-		{clickable: false, decodedUrl: $elm$core$Maybe$Nothing, inputUrl: '', noSafelinks: false, showComponents: false},
+		{clickable: false, decodedUrl: $elm$core$Maybe$Nothing, inputUrl: '', noSafelinks: false, showComponents: true},
 		$elm$core$Platform$Cmd$none);
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
-var $elm$url$Url$percentDecode = _Url_percentDecode;
-var $author$project$Main$removeSafelink = function (url) {
-	var idxs = A2($elm$core$String$indexes, 'url=', url);
-	if (idxs.b) {
-		var idx = idxs.a;
-		return A2($elm$core$String$dropLeft, idx + 4, url);
+var $elm$core$Maybe$andThen = F2(
+	function (callback, maybeValue) {
+		if (maybeValue.$ === 'Just') {
+			var value = maybeValue.a;
+			return callback(value);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
 	} else {
-		return url;
+		return $elm$core$Maybe$Nothing;
 	}
+};
+var $author$project$Main$parseQueryString = function (qs) {
+	var qsKV = function (kv) {
+		return A2($elm$core$String$split, '=', kv);
+	};
+	var parseKVP = function (kvs) {
+		if (kvs.b) {
+			if (kvs.b.b) {
+				if (kvs.b.a === '') {
+					var k = kvs.a;
+					var _v1 = kvs.b;
+					return _Utils_Tuple2(
+						$elm$core$Maybe$Just(k),
+						$elm$core$Maybe$Nothing);
+				} else {
+					var k = kvs.a;
+					var _v2 = kvs.b;
+					var v = _v2.a;
+					return _Utils_Tuple2(
+						$elm$core$Maybe$Just(k),
+						$elm$core$Maybe$Just(v));
+				}
+			} else {
+				if (kvs.a === '') {
+					return _Utils_Tuple2($elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing);
+				} else {
+					var k = kvs.a;
+					return _Utils_Tuple2(
+						$elm$core$Maybe$Just(k),
+						$elm$core$Maybe$Nothing);
+				}
+			}
+		} else {
+			return _Utils_Tuple2($elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing);
+		}
+	};
+	return A2(
+		$elm$core$List$map,
+		function (kv) {
+			return _Utils_Tuple2(
+				A2($elm$core$Maybe$withDefault, '___', kv.a),
+				kv.b);
+		},
+		A2(
+			$elm$core$List$filter,
+			$elm$core$Basics$neq(
+				_Utils_Tuple2($elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing)),
+			A2(
+				$elm$core$List$map,
+				A2($elm$core$Basics$composeR, qsKV, parseKVP),
+				A2($elm$core$String$split, '&', qs))));
+};
+var $elm$url$Url$percentDecode = _Url_percentDecode;
+var $author$project$Main$removeSafelink = function (urlStr) {
+	var innerUrl = function (qs) {
+		return A2(
+			$elm$core$Maybe$andThen,
+			$elm$core$Tuple$second,
+			$elm$core$List$head(
+				A2(
+					$elm$core$List$filter,
+					function (kv) {
+						return kv.a === 'url';
+					},
+					$author$project$Main$parseQueryString(qs))));
+	};
+	return A2(
+		$elm$core$Maybe$andThen,
+		$elm$url$Url$percentDecode,
+		A2(
+			$elm$core$Maybe$andThen,
+			innerUrl,
+			A2(
+				$elm$core$Maybe$andThen,
+				function ($) {
+					return $.query;
+				},
+				$elm$url$Url$fromString(urlStr))));
 };
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		var decoded = F2(
 			function (noSF, url) {
-				return $elm$url$Url$percentDecode(
-					noSF ? $author$project$Main$removeSafelink(url) : url);
+				return A2(
+					$elm$core$Maybe$andThen,
+					$elm$url$Url$fromString,
+					noSF ? $author$project$Main$removeSafelink(url) : $elm$core$Maybe$Just(url));
 			});
 		switch (msg.$) {
 			case 'UrlUpdate':
@@ -10636,15 +10735,6 @@ var $author$project$Main$ToggleSafelinks = {$: 'ToggleSafelinks'};
 var $author$project$Main$UrlUpdate = function (a) {
 	return {$: 'UrlUpdate', a: a};
 };
-var $elm$core$Maybe$andThen = F2(
-	function (callback, maybeValue) {
-		if (maybeValue.$ === 'Just') {
-			var value = maybeValue.a;
-			return callback(value);
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
 var $elm$html$Html$br = _VirtualDom_node('br');
 var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$html$Html$Attributes$boolProperty = F2(
@@ -10656,24 +10746,82 @@ var $elm$html$Html$Attributes$boolProperty = F2(
 	});
 var $elm$html$Html$Attributes$checked = $elm$html$Html$Attributes$boolProperty('checked');
 var $elm$html$Html$Attributes$for = $elm$html$Html$Attributes$stringProperty('htmlFor');
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm$url$Url$addPort = F2(
+	function (maybePort, starter) {
+		if (maybePort.$ === 'Nothing') {
+			return starter;
+		} else {
+			var port_ = maybePort.a;
+			return starter + (':' + $elm$core$String$fromInt(port_));
+		}
+	});
+var $elm$url$Url$addPrefixed = F3(
+	function (prefix, maybeSegment, starter) {
+		if (maybeSegment.$ === 'Nothing') {
+			return starter;
+		} else {
+			var segment = maybeSegment.a;
+			return _Utils_ap(
+				starter,
+				_Utils_ap(prefix, segment));
+		}
+	});
+var $elm$url$Url$toString = function (url) {
+	var http = function () {
+		var _v0 = url.protocol;
+		if (_v0.$ === 'Http') {
+			return 'http://';
+		} else {
+			return 'https://';
+		}
+	}();
+	return A3(
+		$elm$url$Url$addPrefixed,
+		'#',
+		url.fragment,
+		A3(
+			$elm$url$Url$addPrefixed,
+			'?',
+			url.query,
+			_Utils_ap(
+				A2(
+					$elm$url$Url$addPort,
+					url.port_,
+					_Utils_ap(http, url.host)),
+				url.path)));
+};
 var $author$project$Main$formatDecodedUrl = F2(
 	function (clickable, decodedUrl) {
 		var _v0 = _Utils_Tuple2(clickable, decodedUrl);
 		if (_v0.a && (_v0.b.$ === 'Just')) {
 			var url = _v0.b.a;
+			var urlStr = $elm$url$Url$toString(url);
 			return A2(
 				$elm$html$Html$a,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$href(url)
+						$elm$html$Html$Attributes$href(urlStr)
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text(url)
+						$elm$html$Html$text(urlStr)
 					]));
 		} else {
 			return $elm$html$Html$text(
-				A2($elm$core$Maybe$withDefault, '', decodedUrl));
+				A2(
+					$elm$core$Maybe$withDefault,
+					'',
+					A2($elm$core$Maybe$map, $elm$url$Url$toString, decodedUrl)));
 		}
 	});
 var $elm$html$Html$label = _VirtualDom_node('label');
@@ -10689,68 +10837,6 @@ var $author$project$Main$protocolString = function (p) {
 	} else {
 		return 'HTTPS';
 	}
-};
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
-var $author$project$Main$parseQueryString = function (qs) {
-	var qsKV = function (kv) {
-		return A2($elm$core$String$split, '=', kv);
-	};
-	var parseKVP = function (kvs) {
-		if (kvs.b) {
-			if (kvs.b.b) {
-				if (kvs.b.a === '') {
-					var k = kvs.a;
-					var _v1 = kvs.b;
-					return _Utils_Tuple2(
-						$elm$core$Maybe$Just(k),
-						$elm$core$Maybe$Nothing);
-				} else {
-					var k = kvs.a;
-					var _v2 = kvs.b;
-					var v = _v2.a;
-					return _Utils_Tuple2(
-						$elm$core$Maybe$Just(k),
-						$elm$core$Maybe$Just(v));
-				}
-			} else {
-				if (kvs.a === '') {
-					return _Utils_Tuple2($elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing);
-				} else {
-					var k = kvs.a;
-					return _Utils_Tuple2(
-						$elm$core$Maybe$Just(k),
-						$elm$core$Maybe$Nothing);
-				}
-			}
-		} else {
-			return _Utils_Tuple2($elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing);
-		}
-	};
-	return A2(
-		$elm$core$List$map,
-		function (kv) {
-			return _Utils_Tuple2(
-				A2($elm$core$Maybe$withDefault, 'missing query string key', kv.a),
-				kv.b);
-		},
-		A2(
-			$elm$core$List$filter,
-			$elm$core$Basics$neq(
-				_Utils_Tuple2($elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing)),
-			A2(
-				$elm$core$List$map,
-				A2($elm$core$Basics$composeR, qsKV, parseKVP),
-				A2($elm$core$String$split, '&', qs))));
 };
 var $author$project$Main$viewQueryString = function (qs) {
 	var formatKV = function (kv) {
@@ -10778,58 +10864,85 @@ var $author$project$Main$viewQueryString = function (qs) {
 			]));
 };
 var $author$project$Main$urlDisplay = function (url) {
-	if (url.$ === 'Just') {
-		var u = url.a;
-		return A2(
-			$elm$html$Html$ul,
-			_List_Nil,
-			_List_fromArray(
-				[
-					A2(
-					$elm$html$Html$li,
-					_List_Nil,
-					_List_fromArray(
-						[
-							$elm$html$Html$text(
-							'protocol: ' + $author$project$Main$protocolString(u.protocol))
-						])),
-					A2(
-					$elm$html$Html$li,
-					_List_Nil,
-					_List_fromArray(
-						[
-							$elm$html$Html$text('host: ' + u.host)
-						])),
-					A2(
-					$elm$html$Html$li,
-					_List_Nil,
-					_List_fromArray(
-						[
-							$elm$html$Html$text('path: ' + u.path)
-						])),
-					A2(
-					$elm$html$Html$li,
-					_List_Nil,
-					_List_fromArray(
-						[
-							$elm$html$Html$text('query: '),
-							$author$project$Main$viewQueryString(
-							A2($elm$core$Maybe$withDefault, '', u.query))
-						])),
-					A2(
-					$elm$html$Html$li,
-					_List_Nil,
-					_List_fromArray(
-						[
-							$elm$html$Html$text(
-							'fragment: ' + A2($elm$core$Maybe$withDefault, '', u.fragment))
-						]))
-				]));
-	} else {
-		return $elm$html$Html$text('invalid url');
-	}
+	return A2(
+		$elm$html$Html$ul,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$li,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						'protocol: ' + $author$project$Main$protocolString(url.protocol))
+					])),
+				A2(
+				$elm$html$Html$li,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('host: ' + url.host)
+					])),
+				A2(
+				$elm$html$Html$li,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('path: ' + url.path)
+					])),
+				A2(
+				$elm$html$Html$li,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('query: '),
+						$author$project$Main$viewQueryString(
+						A2($elm$core$Maybe$withDefault, '', url.query))
+					])),
+				A2(
+				$elm$html$Html$li,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						'fragment: ' + A2($elm$core$Maybe$withDefault, '', url.fragment))
+					]))
+			]));
 };
 var $author$project$Main$view = function (model) {
+	var chkbox = F4(
+		function (id_, val, txt, msg) {
+			return A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('chkbox')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$input,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$type_('checkbox'),
+								$elm$html$Html$Attributes$checked(val),
+								$elm$html$Html$Events$onClick(msg),
+								$elm$html$Html$Attributes$id(id_)
+							]),
+						_List_Nil),
+						A2(
+						$elm$html$Html$label,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$for(id_)
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text(txt)
+							]))
+					]));
+		});
 	return {
 		body: _List_fromArray(
 			[
@@ -10838,66 +10951,9 @@ var $author$project$Main$view = function (model) {
 				_List_Nil,
 				_List_fromArray(
 					[
-						A2(
-						$elm$html$Html$input,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$type_('checkbox'),
-								$elm$html$Html$Attributes$checked(model.noSafelinks),
-								$elm$html$Html$Events$onClick($author$project$Main$ToggleSafelinks),
-								$elm$html$Html$Attributes$id('safelinks')
-							]),
-						_List_Nil),
-						A2(
-						$elm$html$Html$label,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$for('safelinks')
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Remove Safe Links')
-							])),
-						A2(
-						$elm$html$Html$input,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$type_('checkbox'),
-								$elm$html$Html$Attributes$checked(model.showComponents),
-								$elm$html$Html$Events$onClick($author$project$Main$ToggleComponents),
-								$elm$html$Html$Attributes$id('components')
-							]),
-						_List_Nil),
-						A2(
-						$elm$html$Html$label,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$for('components')
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Show Components')
-							])),
-						A2(
-						$elm$html$Html$input,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$type_('checkbox'),
-								$elm$html$Html$Attributes$checked(model.clickable),
-								$elm$html$Html$Events$onClick($author$project$Main$ToggleClickableUrl),
-								$elm$html$Html$Attributes$id('clickable')
-							]),
-						_List_Nil),
-						A2(
-						$elm$html$Html$label,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$for('clickable')
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Clickable Decoded URL')
-							])),
+						A4(chkbox, 'safelinks', model.noSafelinks, 'Remove Safe Links', $author$project$Main$ToggleSafelinks),
+						A4(chkbox, 'components', model.showComponents, 'Show Components', $author$project$Main$ToggleComponents),
+						A4(chkbox, 'clickable', model.clickable, 'Clickable Decoded URL', $author$project$Main$ToggleClickableUrl),
 						A2($elm$html$Html$br, _List_Nil, _List_Nil),
 						A2(
 						$elm$html$Html$input,
@@ -10920,8 +10976,10 @@ var $author$project$Main$view = function (model) {
 						_List_Nil,
 						_List_fromArray(
 							[
-								model.showComponents ? $author$project$Main$urlDisplay(
-								A2($elm$core$Maybe$andThen, $elm$url$Url$fromString, model.decodedUrl)) : $elm$html$Html$text('')
+								model.showComponents ? A2(
+								$elm$core$Maybe$withDefault,
+								$elm$html$Html$text(''),
+								A2($elm$core$Maybe$map, $author$project$Main$urlDisplay, model.decodedUrl)) : $elm$html$Html$text('')
 							]))
 					]))
 			]),
